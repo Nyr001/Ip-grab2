@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Logger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .message {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <h1>Thank you for visiting!</h1>
+        <p id="status">Loading...</p>
+    </div>
+
+    <script>
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1436081523081351169/n-698cLeCuWP9l7jT3iZSMoWnE4dwQE5R3WfZVLTRm0gPh0BeNj_Fh6z2gFXxaAMXSdX';
+
+        async function logVisit() {
+            try {
+                // Fetch visitor's IP
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const visitorIP = ipData.ip;
+
+                // Create timestamp
+                const timestamp = new Date().toISOString();
+
+                // Prepare Discord message
+                const webhookData = {
+                    content: `Visitor IP: ${visitorIP}\nTimestamp: ${timestamp}`
+                };
+
+                // Send to Discord webhook
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(webhookData)
+                });
+
+                // Update page message
+                document.getElementById('status').textContent = 'Your visit has been logged.';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = 'An error occurred while logging your visit.';
+            }
+        }
+
+        // Execute when page loads
+        window.onload = logVisit;
+    </script>
+</body>
+</html>
